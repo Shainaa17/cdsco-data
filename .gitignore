@@ -1,0 +1,22 @@
+# Virtual Environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# Environment variables
+.env
+
+# Playwright cache
+playwright-report/
+test-results/
+
+# Generated HTML
+page.html
+
+# Python cache folders
+**/__pycache__/

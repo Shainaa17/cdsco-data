@@ -1,12 +1,21 @@
 from app.scraper.browser import BrowserManager
 from app.parser.extractor import CDSCOExtractor
 from app.parser.cleaner import clean_record
+
+from app.database.models import create_tables
+from app.database.operations import (
+    insert_record,
+    fetch_all_records
+)
+
 from app.reports.excel import generate_excel
 
 CDSCO_URL = "https://www.cdscoonline.gov.in/CDSCO/cdscoDrugs"
 
 
 def main():
+
+    create_tables()
 
     browser = BrowserManager(headless=False)
 
@@ -31,8 +40,19 @@ def main():
 
     print(f"Extracted {len(records)} records")
 
+    inserted = 0
+
+    for record in records:
+
+        if insert_record(record):
+            inserted += 1
+
+    print(f"Inserted {inserted} new approvals into PostgreSQL.")
+
+    all_records = fetch_all_records()
+
     generate_excel(
-        records,
+        all_records,
         "data/exports/cdsco_approvals.xlsx"
     )
 

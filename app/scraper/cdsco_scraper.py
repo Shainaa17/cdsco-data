@@ -17,7 +17,8 @@ def main():
 
     create_tables()
 
-    browser = BrowserManager(headless=False)
+    def main(headless=True):
+        browser = BrowserManager(headless=headless)
 
     page = browser.start()
 

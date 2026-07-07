@@ -23,7 +23,6 @@ OUTPUT_FILE = "data/exports/cdsco_approvals.xlsx"
 
 
 def run_pipeline():
-
     logging.info("Fetching pending records from PostgreSQL...")
 
     pending_records = fetch_pending_enrichment()
@@ -82,7 +81,9 @@ def run_pipeline():
 
             row["needs_enrichment"] = "No"
             row["missing_fields"] = ""
-
+        
+        print("\n========== FINAL RECORD ==========\n")
+        print(row)
         update_enrichment(row)
 
     logging.info("Fetching all records...")

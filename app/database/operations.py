@@ -76,7 +76,8 @@ def insert_record(record):
             dosage_source,
             indication_source,
 
-            last_updated
+            last_updated,
+            is_new
 
         )
 
@@ -125,7 +126,8 @@ def insert_record(record):
             "",
             "",
 
-            record["last_updated"]
+            record["last_updated"],
+            True
 
         )
 
@@ -163,7 +165,9 @@ def fetch_pending_enrichment():
         last_updated,
         composition_source,
         dosage_source,
-        indication_source
+        indication_source,
+        is_new,
+        added_at
         FROM approvals
         WHERE needs_enrichment='Yes';
         """
@@ -206,7 +210,9 @@ def fetch_all_records():
         last_updated,
         composition_source,
         dosage_source,
-        indication_source
+        indication_source,
+        is_new,
+        added_at
         FROM approvals
         ORDER BY approval_date DESC;
         """
@@ -317,6 +323,22 @@ def update_enrichment(record):
             approval_hash
         )
     )
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+    
+def clear_new_flags():
+    
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE approvals
+        SET is_new = FALSE
+        WHERE is_new = TRUE;
+    """)
 
     conn.commit()
 

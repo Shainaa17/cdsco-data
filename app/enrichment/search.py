@@ -10,8 +10,8 @@ client = TavilyClient(
 
 
 def tavily_search(drug_name, manufacturer):
-
-    query = f"{drug_name} {manufacturer} composition indication"
+    
+    query = f"{drug_name} {manufacturer} composition dosage indication"
 
     response = client.search(
         query=query,
@@ -19,4 +19,24 @@ def tavily_search(drug_name, manufacturer):
         max_results=3
     )
 
-    return response["results"]
+    formatted = ""
+
+    for i, result in enumerate(response["results"], start=1):
+
+        formatted += f"""
+Result {i}
+
+Title:
+{result.get("title","")}
+
+URL:
+{result.get("url","")}
+
+Content:
+{result.get("content","")}
+
+---------------------------------------
+
+"""
+
+    return formatted

@@ -8,6 +8,8 @@ from openpyxl.styles import (
     Side
 )
 from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font
+from openpyxl.cell.cell import Hyperlink
 
 
 HEADER_FILL = PatternFill(
@@ -100,6 +102,44 @@ def format_excel(filename):
             if cell.value == "No":
                 cell.fill = GREEN_FILL
 
+        # ---------------- Hyperlinks ----------------
+
+    hyperlink_columns = [
+        "source_url",
+        "composition_source",
+        "dosage_source",
+        "indication_source"
+    ]
+
+    headers = {}
+
+    for cell in ws[1]:
+        headers[cell.value] = cell.column
+
+    hyperlink_font = Font(
+        color="0563C1",
+        underline="single"
+    )
+
+    for column_name in hyperlink_columns:
+
+        if column_name not in headers:
+            continue
+
+        column_index = headers[column_name]
+
+        for row in range(2, ws.max_row + 1):
+
+            cell = ws.cell(row=row, column=column_index)
+
+            if (
+                cell.value
+                and str(cell.value).startswith("http")
+            ):
+
+                cell.hyperlink = str(cell.value)
+                cell.font = hyperlink_font
+                
     # ---------------- Auto Width ----------------
 
     for column in ws.columns:

@@ -11,7 +11,7 @@ import pandas as pd
 import plotly.express as px
 
 from app.database.operations import fetch_all_records
-
+from app.main import main as update_pipeline
 
 st.set_page_config(
     page_title="CDSCO Weekly Drug Tracker",
@@ -20,7 +20,6 @@ st.set_page_config(
 )
 
 
-@st.cache_data
 def load_data():
     return pd.DataFrame(fetch_all_records())
 
@@ -44,8 +43,8 @@ with c1:
 
 with c2:
     st.metric(
-        "Needs Enrichment",
-        len(df[df["needs_enrichment"] == "Yes"])
+        "New Update",
+        len(df[df["is_new"] == True])
     )
 
 with c3:
@@ -94,7 +93,9 @@ status = st.sidebar.selectbox(
     "Needs Enrichment",
     ["All", "Yes", "No"]
 )
-
+show_new = st.sidebar.checkbox(
+    "Show only newly added approvals"
+)
 # ================= FILTERS =======================
 
 filtered = df.copy()
@@ -128,6 +129,12 @@ if status != "All":
         filtered["needs_enrichment"] == status
     ]
 
+if show_new:
+    
+    filtered = filtered[
+        filtered["is_new"] == True
+    ]
+
 st.success(
     f"Showing {len(filtered)} records"
 )
@@ -144,12 +151,18 @@ display_columns = [
     "category",
     "approval_date",
     "type",
+
     "composition",
+    "composition_source",
+
     "dosage",
+    "dosage_source",
+
     "indication",
+    "indication_source",
+
     "needs_enrichment"
 ]
-
 available_columns = [
     c for c in display_columns
     if c in filtered.columns
@@ -158,7 +171,18 @@ available_columns = [
 st.dataframe(
     filtered[available_columns],
     use_container_width=True,
-    height=650
+    height=650,
+    column_config={
+        "composition_source": st.column_config.LinkColumn(
+            "Composition Source"
+        ),
+        "dosage_source": st.column_config.LinkColumn(
+            "Dosage Source"
+        ),
+        "indication_source": st.column_config.LinkColumn(
+            "Indication Source"
+        )
+    }
 )
 
 st.divider()
@@ -182,7 +206,6 @@ with col1:
 
     if st.button("🔄 Refresh Dashboard"):
 
-        st.cache_data.clear()
         st.rerun()
 
 with col2:

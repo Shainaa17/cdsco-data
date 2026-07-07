@@ -122,14 +122,18 @@ Return exactly:
     try:
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
+        model="gemini-2.5-flash",
+        contents=prompt
         )
 
         text = response.text.strip()
+        print("\n========== GEMINI RAW RESPONSE ==========\n")
+        print(text)
 
         result = json.loads(text)
-
+        print("\n========== PARSED JSON ==========\n")
+        print(result)
+        
         logger.info(
             f"Successfully enriched {record['drug_name']}"
         )

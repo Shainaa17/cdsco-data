@@ -69,24 +69,26 @@ search = st.sidebar.text_input(
     "🔍 Search Drug"
 )
 
-manufacturer = st.sidebar.selectbox(
+manufacturer = st.sidebar.multiselect(
     "Manufacturer",
-    ["All"] + sorted(
+    options=sorted(
         df["manufacturer"]
         .dropna()
         .unique()
         .tolist()
-    )
+    ),
+    placeholder="All"
 )
 
-category = st.sidebar.selectbox(
+category = st.sidebar.multiselect(
     "Category",
-    ["All"] + sorted(
+    options=sorted(
         df["category"]
         .dropna()
         .unique()
         .tolist()
-    )
+    ),
+    placeholder="All"
 )
 
 status = st.sidebar.selectbox(
@@ -111,16 +113,16 @@ if search:
         )
     ]
 
-if manufacturer != "All":
-
+if manufacturer:
+    
     filtered = filtered[
-        filtered["manufacturer"] == manufacturer
+        filtered["manufacturer"].isin(manufacturer)
     ]
 
-if category != "All":
-
+if category:
+    
     filtered = filtered[
-        filtered["category"] == category
+        filtered["category"].isin(category)
     ]
 
 if status != "All":
@@ -204,9 +206,17 @@ col1, col2 = st.columns(2)
 
 with col1:
 
-    if st.button("🔄 Refresh Dashboard"):
+    if st.button("🔄 Update from CDSCO"):
 
-        st.rerun()
+        with st.spinner("Updating from CDSCO..."):
+
+            update_pipeline()
+
+            st.success(
+                "Dashboard updated successfully!"
+            )
+
+            st.rerun()
 
 with col2:
 

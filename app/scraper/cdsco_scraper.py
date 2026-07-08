@@ -10,15 +10,15 @@ from app.database.operations import (
 
 from app.reports.excel import generate_excel
 
+
 CDSCO_URL = "https://www.cdscoonline.gov.in/CDSCO/cdscoDrugs"
 
 
-def main():
+def main(headless=True):
 
     create_tables()
 
-    def main(headless=True):
-        browser = BrowserManager(headless=headless)
+    browser = BrowserManager(headless=headless)
 
     page = browser.start()
 
@@ -48,7 +48,9 @@ def main():
         if insert_record(record):
             inserted += 1
 
-    print(f"Inserted {inserted} new approvals into PostgreSQL.")
+    print(
+        f"Inserted {inserted} new approvals into PostgreSQL."
+    )
 
     all_records = fetch_all_records()
 

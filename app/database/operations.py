@@ -40,7 +40,7 @@ def approval_exists(approval_hash):
 
 
 def insert_record(record):
-
+    
     approval_hash = generate_hash(record)
 
     if approval_exists(approval_hash):
@@ -51,7 +51,7 @@ def insert_record(record):
 
     cur.execute(
         """
-        INSERT INTO approvals(
+        INSERT INTO approvals (
 
             approval_hash,
 
@@ -81,28 +81,20 @@ def insert_record(record):
 
         )
 
-        VALUES(
-
+        VALUES (
             %s,
-
-            %s,%s,%s,%s,
-
-            %s,%s,%s,
-
+            %s, %s, %s, %s,
+            %s, %s, %s,
             %s,
-
-            %s,%s,
-
-            %s,%s,
-
-            %s,%s,%s,
-
+            %s, %s,
+            %s, %s,
+            %s, %s, %s,
+            %s,
             %s
         );
         """,
 
         (
-
             approval_hash,
 
             record["category"],
@@ -128,9 +120,7 @@ def insert_record(record):
 
             record["last_updated"],
             True
-
         )
-
     )
 
     conn.commit()
@@ -139,7 +129,6 @@ def insert_record(record):
     conn.close()
 
     return True
-
 
 def fetch_pending_enrichment():
 

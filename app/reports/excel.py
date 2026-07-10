@@ -194,3 +194,124 @@ def save_dataframe(df, filename):
     )
 
     format_excel(filename)
+    
+def generate_excel_with_icd(
+    approval_records,
+    icd_records,
+    filename
+):
+
+    approvals_df = pd.DataFrame(
+        approval_records
+    )
+
+    icd_df = pd.DataFrame(
+        icd_records
+    )
+
+    # Write both sheets first
+    with pd.ExcelWriter(
+        filename,
+        engine="openpyxl"
+    ) as writer:
+
+        approvals_df.to_excel(
+            writer,
+            sheet_name="Drug Approvals",
+            index=False
+        )
+
+        icd_df.to_excel(
+            writer,
+            sheet_name="ICD Mappings",
+            index=False
+        )
+
+
+    # Open workbook for formatting
+    wb = load_workbook(filename)
+
+
+    for ws in wb.worksheets:
+
+        # Header formatting
+        for cell in ws[1]:
+
+            cell.fill = HEADER_FILL
+            cell.font = HEADER_FONT
+            cell.border = THIN_BORDER
+
+            cell.alignment = Alignment(
+                horizontal="center",
+                vertical="center"
+            )
+
+
+        # Body formatting
+        for row in ws.iter_rows(
+            min_row=2
+        ):
+
+            row_fill = (
+                EVEN_ROW_FILL
+                if row[0].row % 2 == 0
+                else ODD_ROW_FILL
+            )
+
+            for cell in row:
+
+                cell.fill = row_fill
+                cell.border = THIN_BORDER
+
+                cell.alignment = Alignment(
+                    wrap_text=True,
+                    vertical="top"
+                )
+
+                if cell.value == "Not Available":
+                    cell.fill = RED_FILL
+
+                elif cell.value == "Yes":
+                    cell.fill = RED_FILL
+
+                elif cell.value == "No":
+                    cell.fill = GREEN_FILL
+
+
+        # Auto width
+        for column in ws.columns:
+
+            max_length = 0
+
+            letter = get_column_letter(
+                column[0].column
+            )
+
+            for cell in column:
+
+                try:
+
+                    max_length = max(
+                        max_length,
+                        len(str(cell.value or ""))
+                    )
+
+                except Exception:
+                    pass
+
+            ws.column_dimensions[
+                letter
+            ].width = min(
+                max_length + 4,
+                55
+            )
+
+
+        ws.freeze_panes = "A2"
+
+        ws.auto_filter.ref = (
+            ws.dimensions
+        )
+
+
+    wb.save(filename)

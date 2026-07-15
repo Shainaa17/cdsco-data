@@ -52,14 +52,7 @@ def main(headless=True):
         f"Inserted {inserted} new approvals into PostgreSQL."
     )
 
-    all_records = fetch_all_records()
-
-    generate_excel(
-        all_records,
-        "data/exports/cdsco_approvals.xlsx"
-    )
-
-    print("Excel generated successfully!")
+    print("Scraping completed successfully!")
 
     browser.close()
 

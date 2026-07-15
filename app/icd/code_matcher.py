@@ -30,9 +30,12 @@ def extract_codes(text):
 
 def search_icd_codes(search_term):
 
+    MAX_LEN = 250
+
+    search_term = search_term[:MAX_LEN]
+
     query = (
-        f'WHO ICD-10 2019 "{search_term}" '
-        f'ICD code'
+        f'WHO ICD-10 "{search_term}" ICD code'
     )
 
     print(

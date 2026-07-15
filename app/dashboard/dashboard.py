@@ -10,7 +10,10 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-from app.database.operations import fetch_all_records
+from app.database.operations import (
+    fetch_all_records,
+    fetch_icd_mappings_for_excel
+)
 from app.main import main as update_pipeline
 
 st.set_page_config(
@@ -91,6 +94,17 @@ category = st.sidebar.multiselect(
     placeholder="All"
 )
 
+type_filter = st.sidebar.multiselect(
+    "Type",
+    options=sorted(
+        df["type"]
+        .dropna()
+        .unique()
+        .tolist()
+    ),
+    placeholder="All"
+)
+
 status = st.sidebar.selectbox(
     "Needs Enrichment",
     ["All", "Yes", "No"]
@@ -101,6 +115,17 @@ show_new = st.sidebar.checkbox(
 # ================= FILTERS =======================
 
 filtered = df.copy()
+filtered["approval_date"] = pd.to_datetime(
+    filtered["approval_date"],
+    format="mixed",
+    dayfirst=True,
+    errors="coerce"
+)
+
+filtered = filtered.sort_values(
+    by="approval_date",
+    ascending=False
+)
 
 if search:
 
@@ -125,6 +150,12 @@ if category:
         filtered["category"].isin(category)
     ]
 
+if type_filter:
+    
+    filtered = filtered[
+        filtered["type"].isin(type_filter)
+    ]
+    
 if status != "All":
 
     filtered = filtered[
@@ -188,6 +219,41 @@ st.dataframe(
 )
 
 st.divider()
+st.subheader("WHO ICD Mappings")
+
+icd_df = pd.DataFrame(
+    fetch_icd_mappings_for_excel()
+)
+if not icd_df.empty:
+    
+    filtered_drugs = (
+        filtered["drug_name"]
+        .dropna()
+        .unique()
+    )
+
+    icd_df = icd_df[
+        icd_df["drug_name"].isin(
+            filtered_drugs
+        )
+    ]
+if not icd_df.empty:
+    
+    st.success(
+        f"Showing {len(icd_df)} ICD mappings"
+    )
+
+    st.dataframe(
+        icd_df,
+        use_container_width=True,
+        height=350
+    )
+
+else:
+
+    st.info(
+        "No ICD mappings available for the selected filters."
+    )
 
 excel_path = "data/exports/cdsco_approvals.xlsx"
 
@@ -210,7 +276,15 @@ with col1:
 
         with st.spinner("Updating from CDSCO..."):
 
+            st.cache_data.clear()
+
             update_pipeline()
+
+            filtered = load_data()
+
+            st.success("Dashboard updated successfully!")
+
+            st.rerun()
 
             st.success(
                 "Dashboard updated successfully!"

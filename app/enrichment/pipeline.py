@@ -45,21 +45,18 @@ def run_pipeline():
 
         # Composition
         if row["composition"] == "Not Available":
+            row["composition"] = enriched["composition"].get("value", "Not Available")
+            row["composition_source"] = enriched["composition"].get("source", "")
 
-            row["composition"] = enriched["composition"]["value"]
-            row["composition_source"] = enriched["composition"]["source"]
-
-        # Dosage
+# Dosage
         if row["dosage"] == "Not Available":
+            row["dosage"] = enriched["dosage"].get("value", "Not Available")
+            row["dosage_source"] = enriched["dosage"].get("source", "")
 
-            row["dosage"] = enriched["dosage"]["value"]
-            row["dosage_source"] = enriched["dosage"]["source"]
-
-        # Indication
+# Indication
         if row["indication"] == "Not Available":
-
-            row["indication"] = enriched["indication"]["value"]
-            row["indication_source"] = enriched["indication"]["source"]
+            row["indication"] = enriched["indication"].get("value", "Not Available")
+            row["indication_source"] = enriched["indication"].get("source", "")
 
         missing = []
 

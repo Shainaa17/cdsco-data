@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: cdsco_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-cdsco}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    container_name: cdsco_app
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@db:5432/${DB_NAME:-cdsco}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      TAVILY_API_KEY: ${TAVILY_API_KEY}
+      WHO_ICD_CLIENT_ID: ${WHO_ICD_CLIENT_ID}
+      WHO_ICD_CLIENT_SECRET: ${WHO_ICD_CLIENT_SECRET}
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

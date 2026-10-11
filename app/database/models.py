@@ -36,7 +36,24 @@ def create_tables():
             dosage_source TEXT,
             indication_source TEXT,
 
-            last_updated TEXT
+            last_updated TEXT,
+            is_new BOOLEAN DEFAULT FALSE
+        );
+
+        ALTER TABLE approvals ADD COLUMN IF NOT EXISTS is_new BOOLEAN DEFAULT FALSE;
+
+        CREATE TABLE IF NOT EXISTS approval_icd_mappings (
+
+            id SERIAL PRIMARY KEY,
+
+            approval_hash TEXT REFERENCES approvals(approval_hash) ON DELETE CASCADE,
+
+            icd_search_term TEXT,
+            icd_code TEXT,
+            icd_indication TEXT,
+            level_1_indication TEXT,
+
+            UNIQUE (approval_hash, icd_search_term, icd_code)
         );
         """
     )

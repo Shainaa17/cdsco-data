@@ -14,6 +14,7 @@ from app.database.operations import (
     fetch_all_records,
     fetch_icd_mappings_for_excel
 )
+from app.database.models import create_tables
 from app.main import main as update_pipeline
 
 st.set_page_config(
@@ -22,9 +23,28 @@ st.set_page_config(
     layout="wide"
 )
 
+DEFAULT_COLUMNS = [
+    "category", "drug_name", "approval_date", "type", "composition",
+    "dosage", "indication", "manufacturer", "needs_enrichment",
+    "missing_fields", "source", "source_url", "last_updated",
+    "composition_source", "dosage_source", "indication_source",
+    "is_new"
+]
+
 
 def load_data():
-    return pd.DataFrame(fetch_all_records())
+    try:
+        create_tables()
+    except Exception as e:
+        print(f"Schema check notice: {e}")
+    try:
+        records = fetch_all_records()
+        if not records:
+            return pd.DataFrame(columns=DEFAULT_COLUMNS)
+        return pd.DataFrame(records)
+    except Exception as e:
+        st.error(f"Database error: {e}")
+        return pd.DataFrame(columns=DEFAULT_COLUMNS)
 
 
 df = load_data()

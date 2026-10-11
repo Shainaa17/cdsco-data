@@ -155,8 +155,7 @@ def fetch_pending_enrichment():
         composition_source,
         dosage_source,
         indication_source,
-        is_new,
-        added_at
+        is_new
         FROM approvals
         WHERE needs_enrichment='Yes';
         """
@@ -200,8 +199,7 @@ def fetch_all_records():
         composition_source,
         dosage_source,
         indication_source,
-        is_new,
-        added_at
+        is_new
         FROM approvals
         ORDER BY approval_date DESC;
         """

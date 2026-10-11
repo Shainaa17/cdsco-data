@@ -37,10 +37,12 @@ def create_tables():
             indication_source TEXT,
 
             last_updated TEXT,
-            is_new BOOLEAN DEFAULT FALSE
+            is_new BOOLEAN DEFAULT FALSE,
+            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
         ALTER TABLE approvals ADD COLUMN IF NOT EXISTS is_new BOOLEAN DEFAULT FALSE;
+        ALTER TABLE approvals ADD COLUMN IF NOT EXISTS added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
         CREATE TABLE IF NOT EXISTS approval_icd_mappings (
 

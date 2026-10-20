@@ -89,10 +89,14 @@ st.sidebar.caption("Scrape CDSCO & WHO ICD, enrich missing data & update dashboa
 
 def trigger_full_scrape():
     with st.spinner("Scraping CDSCO, querying WHO ICD, and enriching data with AI... Please wait."):
-        st.cache_data.clear()
-        update_pipeline()
-        st.success("✅ CDSCO & WHO data fetched and synced successfully!")
-        st.rerun()
+        try:
+            st.cache_data.clear()
+            update_pipeline()
+            st.success("✅ CDSCO & WHO data fetched and synced successfully!")
+            st.rerun()
+        except Exception as e:
+            st.error(f"❌ Scrape failed: {e}")
+            st.info("Tip: If running on Streamlit Cloud, you can also run the scraper locally on your laptop using run_dashboard.bat to update the cloud database.")
 
 if st.sidebar.button("⚡ Fetch & Scrape CDSCO + WHO", type="primary", use_container_width=True):
     trigger_full_scrape()

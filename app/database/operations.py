@@ -91,7 +91,8 @@ def insert_record(record):
             %s, %s, %s,
             %s,
             %s
-        );
+        )
+        ON CONFLICT (approval_hash) DO NOTHING;
         """,
 
         (

@@ -57,6 +57,18 @@ def create_tables():
 
             UNIQUE (approval_hash, icd_search_term, icd_code)
         );
+
+        -- Synchronize sequences if data was restored or imported with manual IDs
+        SELECT setval(
+            pg_get_serial_sequence('approvals', 'id'),
+            COALESCE((SELECT MAX(id) FROM approvals), 0) + 1,
+            false
+        );
+        SELECT setval(
+            pg_get_serial_sequence('approval_icd_mappings', 'id'),
+            COALESCE((SELECT MAX(id) FROM approval_icd_mappings), 0) + 1,
+            false
+        );
         """
     )
 

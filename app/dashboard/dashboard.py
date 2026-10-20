@@ -84,8 +84,20 @@ with c4:
 
 st.divider()
 
-# ================= SIDEBAR =======================
+st.sidebar.title("🔄 Live Sync")
+st.sidebar.caption("Scrape CDSCO & WHO ICD, enrich missing data & update dashboard.")
 
+def trigger_full_scrape():
+    with st.spinner("Scraping CDSCO, querying WHO ICD, and enriching data with AI... Please wait."):
+        st.cache_data.clear()
+        update_pipeline()
+        st.success("✅ CDSCO & WHO data fetched and synced successfully!")
+        st.rerun()
+
+if st.sidebar.button("⚡ Fetch & Scrape CDSCO + WHO", type="primary", use_container_width=True):
+    trigger_full_scrape()
+
+st.sidebar.divider()
 st.sidebar.title("Filters")
 
 search = st.sidebar.text_input(
@@ -291,32 +303,11 @@ if os.path.exists(excel_path):
 col1, col2 = st.columns(2)
 
 with col1:
-
-    if st.button("🔄 Update from CDSCO"):
-
-        with st.spinner("Updating from CDSCO..."):
-
-            st.cache_data.clear()
-
-            update_pipeline()
-
-            filtered = load_data()
-
-            st.success("Dashboard updated successfully!")
-
-            st.rerun()
-
-            st.success(
-                "Dashboard updated successfully!"
-            )
-
-            st.rerun()
+    if st.button("🔄 Scrape & Refresh Data (CDSCO + WHO)", use_container_width=True):
+        trigger_full_scrape()
 
 with col2:
-
-    st.info(
-        "Dashboard connected directly to PostgreSQL."
-    )
+    st.info("Dashboard connected directly to PostgreSQL.")
 
 st.divider()
 

@@ -1,6 +1,28 @@
 from app.database.db import get_connection
 
 
+def sync_sequences(conn):
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT setval(
+                pg_get_serial_sequence('approvals', 'id'),
+                GREATEST((SELECT COALESCE(MAX(id), 0) FROM approvals), 1)
+            );
+        """)
+        cur.execute("""
+            SELECT setval(
+                pg_get_serial_sequence('approval_icd_mappings', 'id'),
+                GREATEST((SELECT COALESCE(MAX(id), 0) FROM approval_icd_mappings), 1)
+            );
+        """)
+        conn.commit()
+        cur.close()
+    except Exception as e:
+        conn.rollback()
+        print(f"Sequence sync notice: {e}")
+
+
 def create_tables():
 
     conn = get_connection()
@@ -57,23 +79,12 @@ def create_tables():
 
             UNIQUE (approval_hash, icd_search_term, icd_code)
         );
-
-        -- Synchronize sequences if data was restored or imported with manual IDs
-        SELECT setval(
-            pg_get_serial_sequence('approvals', 'id'),
-            COALESCE((SELECT MAX(id) FROM approvals), 0) + 1,
-            false
-        );
-        SELECT setval(
-            pg_get_serial_sequence('approval_icd_mappings', 'id'),
-            COALESCE((SELECT MAX(id) FROM approval_icd_mappings), 0) + 1,
-            false
-        );
         """
     )
 
     conn.commit()
-
     cur.close()
+
+    sync_sequences(conn)
 
     conn.close()
